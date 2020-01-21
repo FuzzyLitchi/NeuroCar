@@ -19,8 +19,15 @@ class Car {
     void addForce(PVector force, PVector offset) {
         forces.add(force);
         
-        float cross = offset.x*force.y + offset.y*force.x;
+        float cross = offset.x*force.y - offset.y*force.x;
         torques += cross;
+    }
+
+    PVector relativeToWord(PVector relative) {
+        PVector world = relative.copy();
+        world.rotate(angle);
+        //world.add(position);
+        return world;
     }
 
     // Player/agent controlled values
