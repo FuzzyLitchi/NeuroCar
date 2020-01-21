@@ -5,7 +5,8 @@ void setup() {
     size(600, 400);
 
     car = new Car(new PVector(100, 100), 0.0);
-    car.velocity.set(0.0, 15);
+    car.velocity.set(50, 0);
+    car.angularVelocity = 0.4;
     // car.velocity.rotate(0.2);
     // car.angle = 0.2;
 
@@ -21,9 +22,10 @@ void draw() {
 
     for (Wheel wheel : wheels) {
         wheel.setAngle(car.angle);
-        PVector force = wheel.calculateForce(car.velocity, car.mass*9.82/4, dt);
-        
         PVector offset = car.relativeToWord(wheel.position);
+
+        PVector force = wheel.calculateForce(car.pointVelocity(offset), car.mass*9.82/4, dt);
+        
         car.addForce(force, offset);
         line(offset.x+car.position.x, offset.y+car.position.y, offset.x+car.position.x+force.x, offset.y+car.position.y+force.y);
     }
@@ -32,6 +34,6 @@ void draw() {
 
     // Draw
     car.draw();
-    print("magnitude: ");
+    print("car speed: ");
     println(car.velocity.mag());
 }
