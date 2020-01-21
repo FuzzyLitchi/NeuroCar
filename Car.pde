@@ -69,5 +69,72 @@ class Car {
 }
 
 class Wheel {
+    // Used for calculations, direction can be set with setAngle()
+    PVector forward = new PVector(0,0);
+    PVector side = new PVector(0,0);
 
+    float torques = 0.0; // summed N*m
+    float speed = 0.0; // radians per second
+    float inertia = 10.0;
+    float radius = 1.0;
+
+    // Relative attached position
+    PVector position;
+
+    Wheel(PVector position) {
+        this.position = position;
+        setAngle(0.0);
+    }
+
+    void setAngle(float angle) {
+        forward.set(1,0);
+        forward.rotate(angle);
+
+        side.set(0, 1);
+        side.rotate(angle);
+    }
+
+    PVector calculateForce(PVector groundSpeed, float normalForce, float dt) {
+        // calculate speed of tire patch at ground
+        PVector patchSpeed = PVector.mult(forward, -speed * radius);
+
+        // get velocity difference between ground and patch
+        PVector velDifference = PVector.add(groundSpeed, patchSpeed);
+
+        println(velDifference.mag());
+        println(speed);
+
+        // The frition force has the magnitued of the normal force * friction coeffiction
+        float frictionCoefficient;
+        if (velDifference.mag() < 1) {
+            frictionCoefficient = 1.0;
+        } else {
+            frictionCoefficient = 0.7;
+        }
+
+        // calculate friction force
+        velDifference.setMag(normalForce * frictionCoefficient);
+        PVector frictionForce = velDifference; 
+
+        // project friction force difference onto forward and side vector
+        PVector forwardForce = PVector.mult(forward, forward.dot(frictionForce)/forward.mag());
+        PVector sideForce = PVector.mult(side, side.dot(frictionForce)/side.mag());
+
+        // //calculate super fake friction forces
+        // //calculate response force
+        PVector responseForce = PVector.mult(sideForce, -1);
+        //responseForce.add(PVector.mult(forwardForce, -0.5));
+
+        //calculate torque on wheel
+        torques -= 0;//forwardForce.mag() * radius;
+
+        //integrate total torque into wheel
+        speed += torques / inertia * dt;
+
+        //clear our transmission torque accumulator
+        torques = 0;
+
+        //return force acting on body
+        return responseForce;
+    }
 }
