@@ -12,6 +12,14 @@ class Car {
     float torques = 0.0; // Sum of all torques applied to car within a time interval
     float inertia = 28333.0;
 
+    // Wheels
+    Wheel wheels[] = new Wheel[4];
+    float frontAngle = 0.0; // between -PI/4 and PI/4
+
+    // User/agent controlled
+    float frontAngularVelocity = 0.0;
+    float motorTorque = 0.0;
+
     // Size
     float width = 30.0;
     float length = 50.0;
@@ -19,6 +27,11 @@ class Car {
     Car(PVector position, float angle) {
         this.position = position;
         this.angle = angle;
+
+        wheels[0] = new Wheel(new PVector(25,15));
+        wheels[1] = new Wheel(new PVector(25,-15));
+        wheels[2] = new Wheel(new PVector(-25,15));
+        wheels[3] = new Wheel(new PVector(-25,-15));
     }
 
     void addForce(PVector force, PVector offset) {
@@ -43,8 +56,32 @@ class Car {
     }
 
     void update(float dt) { // dt is delta time, aka time since last frame
+        // Computer wheel rotation
+        frontAngle += frontAngularVelocity;
+
         // Compute forces
-        addForce(new PVector(0, 1), new PVector(0, 0));
+        for (int i = 0; i < 4; i++) {
+            Wheel wheel = wheels[i];
+
+            // front wheels and back wheels
+            if (i < 2) {
+                // front wheels are rotated by frontAngle
+                wheel.setAngle(this.angle+frontAngle);
+            } else {
+                // back wheels have torque
+                wheel.setAngle(this.angle);
+
+                float angularAcceleration = motorTorque / wheel.inertia;
+                wheel.speed += angularAcceleration;
+            }
+
+            PVector offset = this.relativeToWord(wheel.position);
+
+            PVector force = wheel.calculateForce(this.pointVelocity(offset), this.mass*9.82/4, dt);
+            
+            this.addForce(force, offset);
+            line(offset.x+this.position.x, offset.y+this.position.y, offset.x+this.position.x+force.x, offset.y+this.position.y+force.y);
+        }
 
         // Integrate physics
         // Linear
@@ -67,6 +104,11 @@ class Car {
 
         rect(-length/2, -width/2, length, width);
 
+        for (int i = 0; i < 4; i++) {
+            Wheel wheel = wheels[i];
+            wheel.draw(this, i);
+        }
+
         popMatrix();
     }
 }
@@ -83,6 +125,10 @@ class Wheel {
 
     // Relative attached position
     PVector position;
+
+    // Rendering
+    float length = 10;
+    float width = 5;
 
     Wheel(PVector position) {
         this.position = position;
@@ -103,9 +149,8 @@ class Wheel {
 
         // get velocity difference between ground and patch
         PVector velDifference = PVector.add(groundSpeed, patchSpeed);
-        println(groundSpeed.mag(), velDifference.mag());
 
-        // The frition force has the magnitued of the normal force * friction coeffiction
+        // The friction force has the magnitued of the normal force * friction coeffiction
         float frictionCoefficient;
         if (velDifference.mag() < 1) {
             frictionCoefficient = 1.0;
@@ -136,5 +181,19 @@ class Wheel {
 
         //return force acting on body
         return responseForce;
+    }
+
+    void draw(Car car, int i) {
+        pushMatrix();
+        
+        translate(position.x, position.y);
+
+        if (i < 2) {
+            rotate(car.frontAngle);
+        }
+
+        rect(-length/2, -width/2, length, width);
+
+        popMatrix();
     }
 }
