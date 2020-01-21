@@ -8,7 +8,9 @@ void setup() {
     // car.angularVelocity = 0.8;
     car.velocity.rotate(0.2);
     car.angle = 0.2;
-    car.motorTorque = 100;
+
+    car.frontAngle = PI/6;
+    car.enginePower = 10000;
 }
 
 void draw() {
@@ -18,7 +20,10 @@ void draw() {
     car.update(dt);
 
     // Draw
+    pushMatrix();
+    scale(0.5, 0.5);
     car.draw();
+    popMatrix();
 
     print("car speed: ");
     println(car.velocity.mag());

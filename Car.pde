@@ -17,8 +17,8 @@ class Car {
     float frontAngle = 0.0; // between -PI/4 and PI/4
 
     // User/agent controlled
-    float frontAngularVelocity = 0.0;
-    float motorTorque = 0.0;
+    // frontAngle
+    float enginePower = 0.0; // 0- 60 000
 
     // Size
     float width = 30.0;
@@ -56,9 +56,6 @@ class Car {
     }
 
     void update(float dt) { // dt is delta time, aka time since last frame
-        // Computer wheel rotation
-        frontAngle += frontAngularVelocity;
-
         // Compute forces
         for (int i = 0; i < 4; i++) {
             Wheel wheel = wheels[i];
@@ -70,9 +67,6 @@ class Car {
             } else {
                 // back wheels have torque
                 wheel.setAngle(this.angle);
-
-                float angularAcceleration = motorTorque / wheel.inertia;
-                wheel.speed += angularAcceleration;
             }
 
             PVector offset = this.relativeToWord(wheel.position);
@@ -80,8 +74,12 @@ class Car {
             PVector force = wheel.calculateForce(this.pointVelocity(offset), this.mass*9.82/4, dt);
             
             this.addForce(force, offset);
-            line(offset.x+this.position.x, offset.y+this.position.y, offset.x+this.position.x+force.x, offset.y+this.position.y+force.y);
+            // line(offset.x+this.position.x, offset.y+this.position.y, offset.x+this.position.x+force.x, offset.y+this.position.y+force.y);
         }
+
+        PVector driveForce = new PVector(enginePower, 0);
+        driveForce.rotate(angle);
+        forces.add(driveForce);
 
         // Integrate physics
         // Linear
