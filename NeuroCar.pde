@@ -2,9 +2,11 @@ import java.util.Collections;
 import java.util.Arrays;
 
 Agent[] agents = new Agent[100];
+Map map;
 
 void setup() {
     size(1000, 800);
+    map = new Map("yeet.png", 1000, 800);
 
     for (int i = 0; i < 100; i++) {
         agents[i] = new Agent();
@@ -37,11 +39,12 @@ void draw() {
     timer -= dt;
 
     for (Agent agent : agents) {
-        agent.update(dt);
+        agent.update(dt, map);
     }
 
     // Draw
     background(255);
+    map.draw();
     pushMatrix();
     scale(0.5, 0.5);
     for (Agent agent : agents) {

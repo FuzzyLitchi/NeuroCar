@@ -44,22 +44,25 @@ class NeuralNetwork {
         // I have 22 neurons that have weights and biases
         int totalNeurons = secondLayer.getSize() + thirdLayer.getSize() + lastLayer.getSize();
         
-        // Choose neuron at random to receive mutation
-        int chosen = (int)random(0, totalNeurons);
+        int amountToMutate = (int) random(0, 3);
+        for (int i = 0; i < amountToMutate; i++) {
+            // Choose neuron at random to receive mutation
+            int chosen = (int)random(0, totalNeurons);
 
-        // Find the layer the neuron is in;
-        StandardLayer chosenLayer;
-        if (chosen < secondLayer.getSize()) {
-            chosenLayer = secondLayer;
-        } else if (chosen < secondLayer.getSize() + thirdLayer.getSize()) {
-            chosenLayer = thirdLayer;
-            chosen -= secondLayer.getSize();
-        } else {
-            chosenLayer = lastLayer;
-            chosen -= secondLayer.getSize() + thirdLayer.getSize();
+            // Find the layer the neuron is in;
+            StandardLayer chosenLayer;
+            if (chosen < secondLayer.getSize()) {
+                chosenLayer = secondLayer;
+            } else if (chosen < secondLayer.getSize() + thirdLayer.getSize()) {
+                chosenLayer = thirdLayer;
+                chosen -= secondLayer.getSize();
+            } else {
+                chosenLayer = lastLayer;
+                chosen -= secondLayer.getSize() + thirdLayer.getSize();
+            }
+
+            chosenLayer.neurons[chosen].mutate();
         }
-
-        chosenLayer.neurons[chosen].mutate();
     }
 }
 

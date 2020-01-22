@@ -23,7 +23,7 @@ class Agent implements Comparable<Agent> {
         this.blue = blue;
     }
 
-    void update(float dt) {
+    void update(float dt, Map map) {
         // Descision making using neural network
         PVector relativeSpeed = car.worldToRelative(car.velocity);
 
@@ -45,7 +45,12 @@ class Agent implements Comparable<Agent> {
 
         // Fitness computation
         // moving around gives fitness
-        fitness += car.velocity.mag() * dt;
+        float dist = car.velocity.mag() * dt;
+        if (map.pointOnRoad(car.position.x, car.position.y)) {
+            fitness += dist;
+        } else {
+            fitness -= dist * 5;
+        }
     }
 
     void reset() {
