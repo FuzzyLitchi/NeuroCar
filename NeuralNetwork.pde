@@ -39,6 +39,28 @@ class NeuralNetwork {
 
         return new NeuralNetwork(firstLayer, secondLayer, thirdLayer, lastLayer);
     }
+
+    void mutate() {
+        // I have 22 neurons that have weights and biases
+        int totalNeurons = secondLayer.getSize() + thirdLayer.getSize() + lastLayer.getSize();
+        
+        // Choose neuron at random to receive mutation
+        int chosen = (int)random(0, totalNeurons);
+
+        // Find the layer the neuron is in;
+        StandardLayer chosenLayer;
+        if (chosen < secondLayer.getSize()) {
+            chosenLayer = secondLayer;
+        } else if (chosen < secondLayer.getSize() + thirdLayer.getSize()) {
+            chosenLayer = thirdLayer;
+            chosen -= secondLayer.getSize();
+        } else {
+            chosenLayer = lastLayer;
+            chosen -= secondLayer.getSize() + thirdLayer.getSize();
+        }
+
+        chosenLayer.neurons[chosen].mutate();
+    }
 }
 
 abstract class Layer {
@@ -152,5 +174,15 @@ class Neuron {
 
     Neuron copy() {
         return new Neuron(this.size, this.weights.clone(), this.biases.clone());
+    }
+
+    void mutate() {
+        float v = random(0, 1);
+
+        if (v < 0.5) {
+            weights[(int) random(0, size)] += random(-3, 3);
+        } else {
+            biases[(int) random(0, size)] += random(-3, 3);
+        }
     }
 }

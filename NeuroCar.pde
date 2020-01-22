@@ -3,8 +3,9 @@ Agent[] agents = new Agent[100];
 void setup() {
     size(1000, 800);
 
-    for (int i = 0; i < 100; i++) {
-        agents[i] = new Agent();
+    agents[0] = new Agent();
+    for (int i = 1; i < 100; i++) {
+        agents[i] = agents[0].makeChild();
     }
 }
 

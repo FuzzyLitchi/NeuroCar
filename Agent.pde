@@ -54,10 +54,21 @@ class Agent {
     }
 
     Agent makeChild() {
+        // Create child with same properties
         NeuralNetwork neuralNetwork = this.neuralNetwork.copy();
         float red = this.red;
         float green = this.green;
         float blue = this.blue;
+
+        // Do mutation
+        float v = random(0, 1);
+        if (v < 0.2) {
+            // Change color
+            red = (red + (int) random(-20,20))%256;
+            green = (green + (int) random(-20,20))%256;
+            blue = (blue + (int) random(-20,20))%256;
+        }
+        neuralNetwork.mutate();
 
         return new Agent(neuralNetwork, red, green, blue);
     }
