@@ -41,11 +41,18 @@ class Car {
         torques += cross;
     }
 
-    PVector relativeToWord(PVector relative) {
+    PVector relativeToWorld(PVector relative) {
         PVector world = relative.copy();
         world.rotate(angle);
         //world.add(position);
         return world;
+    }
+
+    PVector worldToRelative(PVector world) {
+        PVector relative = world.copy();
+        relative.rotate(-angle);
+
+        return relative;
     }
 
     PVector pointVelocity(PVector worldOffset) {
@@ -69,7 +76,7 @@ class Car {
                 wheel.setAngle(this.angle);
             }
 
-            PVector offset = this.relativeToWord(wheel.position);
+            PVector offset = this.relativeToWorld(wheel.position);
 
             PVector force = wheel.calculateForce(this.pointVelocity(offset), this.mass*9.82/4, dt);
             

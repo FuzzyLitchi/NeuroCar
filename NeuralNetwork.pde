@@ -1,6 +1,5 @@
 class NeuralNetwork {
     // car velocity local x and local y
-    // turn direction
     // three distances in front of it
 
     // 2 hidden layers
@@ -9,17 +8,36 @@ class NeuralNetwork {
     // engine power
     // steering angle
 
-    FirstLayer firstLayer     = new FirstLayer(6);
-    StandardLayer secondLayer = new StandardLayer(10, firstLayer);
-    StandardLayer thirdLayer  = new StandardLayer(10, secondLayer);
-    StandardLayer lastLayer   = new StandardLayer(2, thirdLayer);
+    FirstLayer firstLayer;
+    StandardLayer secondLayer;
+    StandardLayer thirdLayer;
+    StandardLayer lastLayer;
 
     NeuralNetwork() {
-        
+        firstLayer  = new FirstLayer(5);
+        secondLayer = new StandardLayer(10, firstLayer);
+        thirdLayer  = new StandardLayer(10, secondLayer);
+        lastLayer   = new StandardLayer(2, thirdLayer);
+    }
+
+    NeuralNetwork(FirstLayer firstLayer, StandardLayer secondLayer, StandardLayer thirdLayer, StandardLayer lastLayer) {
+        this.firstLayer = firstLayer;
+        this.secondLayer = secondLayer;
+        this.thirdLayer = thirdLayer;
+        this.lastLayer = lastLayer;
     }
 
     float[] compute() {
         return lastLayer.compute();
+    }
+
+    NeuralNetwork copy() {
+        FirstLayer firstLayer = this.firstLayer.copy();
+        StandardLayer secondLayer = this.secondLayer.copy(firstLayer);
+        StandardLayer thirdLayer  = this.thirdLayer.copy(secondLayer);
+        StandardLayer lastLayer   = this.lastLayer.copy(thirdLayer);
+
+        return new NeuralNetwork(firstLayer, secondLayer, thirdLayer, lastLayer);
     }
 }
 
@@ -35,12 +53,20 @@ class FirstLayer extends Layer {
         values = new float[size];
     }
 
+    FirstLayer(float[] values) {
+        this.values = values;
+    }
+
     float[] compute() {
         return values;
     }
 
     int getSize() {
         return values.length;
+    }
+
+    FirstLayer copy() {
+        return new FirstLayer(this.values.clone());
     }
 }
 
@@ -58,6 +84,11 @@ class StandardLayer extends Layer {
         }
     }
 
+    StandardLayer(Neuron[] neurons, Layer previous) {
+        this.neurons = neurons;
+        this.previous = previous;
+    }
+
     float[] compute() {
         float[] previousValues = previous.compute();
 
@@ -72,6 +103,15 @@ class StandardLayer extends Layer {
 
     int getSize() {
         return neurons.length;
+    }
+
+    StandardLayer copy(Layer previous) {
+        Neuron[] neuronsCopy = new Neuron[neurons.length];
+        for (int i = 0; i < neurons.length; i++) {
+            neuronsCopy[i] = neurons[i].copy();
+        }
+
+        return new StandardLayer(neuronsCopy, previous);
     }
 }
 
@@ -95,6 +135,12 @@ class Neuron {
         }
     }
 
+    Neuron(int size, float[] weights, float biases[]) {
+        this.size = size;
+        this.weights = weights;
+        this.biases = biases;
+    }
+
     float compute(float[] inputs) {
         float sum = 0;
         for (int i = 0; i < size; i++) {
@@ -102,5 +148,9 @@ class Neuron {
         }
 
         return sum;
+    }
+
+    Neuron copy() {
+        return new Neuron(this.size, this.weights.clone(), this.biases.clone());
     }
 }
