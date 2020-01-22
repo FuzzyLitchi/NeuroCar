@@ -19,6 +19,7 @@ class Car {
     // User/agent controlled
     // frontAngle
     float enginePower = 0.0; // 0- 60 000
+    float breaking = 0.0;
 
     // Size
     float width = 30.0;
@@ -78,7 +79,7 @@ class Car {
 
             PVector offset = this.relativeToWorld(wheel.position);
 
-            PVector force = wheel.calculateForce(this.pointVelocity(offset), this.mass*9.82/4, dt);
+            PVector force = wheel.calculateForce(this.pointVelocity(offset), this.mass*9.82/4, this.breaking, dt);
             
             this.addForce(force, offset);
             // line(offset.x+this.position.x, offset.y+this.position.y, offset.x+this.position.x+force.x, offset.y+this.position.y+force.y);
@@ -116,6 +117,24 @@ class Car {
 
         popMatrix();
     }
+
+    float distanceToNotRoad(float dAngle, Map map) {
+        int resolution = 50;
+        float length = 1000;
+
+        PVector unitVector = new PVector(1, 0);
+        unitVector.rotate(angle+dAngle);
+
+        for (int i = 0; i < resolution; i++) {
+            PVector lookPos = unitVector.copy();
+            lookPos.mult(i*length/resolution);
+            lookPos.add(position);
+            if (!map.pointOnRoad(lookPos.x, lookPos.y)) {
+                return i*length/resolution;
+            }
+        }
+        return length;
+    }
 }
 
 class Wheel {
@@ -148,7 +167,7 @@ class Wheel {
         side.rotate(angle);
     }
 
-    PVector calculateForce(PVector groundSpeed, float normalForce, float dt) {
+    PVector calculateForce(PVector groundSpeed, float normalForce, float breaking, float dt) {
         // calculate speed of tire patch at ground
         PVector patchSpeed = PVector.mult(forward, -speed * radius);
 
@@ -165,7 +184,7 @@ class Wheel {
 
         // calculate friction force
         velDifference.setMag(normalForce * frictionCoefficient);
-        PVector frictionForce = velDifference; 
+        PVector frictionForce = velDifference;
 
         // project friction force difference onto forward and side vector
         PVector forwardForce = PVector.mult(forward, forward.dot(frictionForce)/forward.mag());
@@ -173,10 +192,10 @@ class Wheel {
 
         // Calculate 
         PVector responseForce = PVector.mult(sideForce, -1);
-        responseForce.add(PVector.mult(forwardForce, -0.5)); // change to -0.5
+        responseForce.add(PVector.mult(forwardForce, -0.5-breaking/2)); // change to -0.5
 
         //calculate torque on wheel
-        torques = forwardForce.dot(forward) * 0.5 * radius;
+        torques = forwardForce.dot(forward) * (0.5-breaking/2) * radius;
 
         //integrate total torque into wheel
         speed += torques / inertia * dt;

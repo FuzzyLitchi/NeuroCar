@@ -7,6 +7,7 @@ class NeuralNetwork {
 
     // engine power
     // steering angle
+    // breaking
 
     FirstLayer firstLayer;
     StandardLayer secondLayer;
@@ -17,7 +18,7 @@ class NeuralNetwork {
         firstLayer  = new FirstLayer(5);
         secondLayer = new StandardLayer(10, firstLayer);
         thirdLayer  = new StandardLayer(10, secondLayer);
-        lastLayer   = new StandardLayer(2, thirdLayer);
+        lastLayer   = new StandardLayer(3, thirdLayer);
     }
 
     NeuralNetwork(FirstLayer firstLayer, StandardLayer secondLayer, StandardLayer thirdLayer, StandardLayer lastLayer) {

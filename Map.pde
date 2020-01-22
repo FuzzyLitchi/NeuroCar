@@ -13,7 +13,7 @@ class Map {
         rendered = createGraphics(1000, 800);
 
         rendered.beginDraw();
-        rendered.scale(width/image.width, height/image.height);
+        rendered.scale(width/image.width/2, height/image.height/2);
         rendered.image(image, 0, 0);
         rendered.endDraw();
     }

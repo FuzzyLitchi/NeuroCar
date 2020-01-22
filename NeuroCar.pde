@@ -6,7 +6,7 @@ Map map;
 
 void setup() {
     size(1000, 800);
-    map = new Map("yeet.png", 1000, 800);
+    map = new Map("yeet.png", 2000, 1600);
 
     for (int i = 0; i < 100; i++) {
         agents[i] = new Agent();
@@ -50,5 +50,6 @@ void draw() {
     for (Agent agent : agents) {
         agent.draw();
     }
+    println(agents[0].car.distanceToNotRoad(0, map));
     popMatrix();
 }

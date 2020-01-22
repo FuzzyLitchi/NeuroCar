@@ -30,14 +30,15 @@ class Agent implements Comparable<Agent> {
         neuralNetwork.firstLayer.values[0] = relativeSpeed.x; // x speed
         neuralNetwork.firstLayer.values[1] = relativeSpeed.y; // y speed
 
-        neuralNetwork.firstLayer.values[2] = 20.0; // distance 1
-        neuralNetwork.firstLayer.values[3] = 40.0; // distance 2
-        neuralNetwork.firstLayer.values[4] = 20.0; // distance 3
+        neuralNetwork.firstLayer.values[2] = car.distanceToNotRoad(-PI/4, map); // distance 1
+        neuralNetwork.firstLayer.values[3] = car.distanceToNotRoad(0, map); // distance 2
+        neuralNetwork.firstLayer.values[4] = car.distanceToNotRoad(PI/4, map); // distance 3
 
         float[] output = neuralNetwork.compute();
 
         car.enginePower = constrain(output[0], 0, 60000);
-        car.frontAngle = constrain(output[1]/100, -PI/4, PI/4);
+        car.frontAngle = constrain(output[1]/1000, -PI/4, PI/4);
+        car.breaking = constrain(output[2]/1000, 0, 1);
         // println(car.enginePower, car.frontAngle);
 
         // Physics computation
@@ -49,7 +50,7 @@ class Agent implements Comparable<Agent> {
         if (map.pointOnRoad(car.position.x, car.position.y)) {
             fitness += dist;
         } else {
-            fitness -= dist * 5;
+            fitness -= fitness*pow(dt,1/5);
         }
     }
 
