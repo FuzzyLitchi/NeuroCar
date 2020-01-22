@@ -1,23 +1,47 @@
+import java.util.Collections;
+import java.util.Arrays;
+
 Agent[] agents = new Agent[100];
 
 void setup() {
     size(1000, 800);
 
-    agents[0] = new Agent();
-    for (int i = 1; i < 100; i++) {
-        agents[i] = agents[0].makeChild();
+    for (int i = 0; i < 100; i++) {
+        agents[i] = new Agent();
     }
 }
 
+// 60 second timer
+float interval = 10.0;
+float timer = interval;
+
 void draw() {
-    background(255);
     float dt = 1.0/60;
+
+    // If we're out of time for this generation
+    if (timer < 0) {
+        // Sort
+        Arrays.sort(agents, Collections.reverseOrder());
+        
+        // Kill bottom 50 and repopulate
+        for (int i = 0; i < 50; ++i) {
+            agents[i+50] = agents[i].makeChild();
+            // reset parents
+            agents[i].reset();
+        }
+
+        // Reset timer
+        timer = interval;
+    }
+
+    timer -= dt;
 
     for (Agent agent : agents) {
         agent.update(dt);
     }
 
     // Draw
+    background(255);
     pushMatrix();
     scale(0.5, 0.5);
     for (Agent agent : agents) {

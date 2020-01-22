@@ -1,4 +1,4 @@
-class Agent {
+class Agent implements Comparable<Agent> {
     Car car = new Car(new PVector(100, 100), 0.0);
     NeuralNetwork neuralNetwork;
 
@@ -78,4 +78,9 @@ class Agent {
         car.draw();
     }
 
+    @Override
+    public int compareTo(Agent other) {
+        float v = this.fitness - other.fitness;
+        return v < 0 ? -1 : (v == 0 ? 0 : 1);
+    }
 }
